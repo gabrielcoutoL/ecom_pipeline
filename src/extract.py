@@ -1,6 +1,7 @@
 import os
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import date
 from typing import Iterator
 
 import pandas as pd
@@ -17,15 +18,6 @@ _local = threading.local()
 BASE_URL = os.getenv("API_URL", "http://localhost:8000")
 MAX_WORKERS = int(os.getenv("MAX_WORKERS", "8"))
 RETRIABLE_STATUS = {429, 500, 502, 503, 504}
-
-ENDPOINTS: dict[str, dict] = {
-    "customers": {"path": "customers", "page_size": 2000},
-    "sellers": {"path": "sellers", "page_size": 2000},
-    "products": {"path": "products", "page_size": 2000},
-    "orders": {"path": "orders", "page_size": 2000},
-    "order_items": {"path": "order_items", "page_size": 2000},
-    "payments": {"path": "payments", "page_size": 2000},
-}
 
 
 def _session() -> requests.Session:
@@ -86,7 +78,13 @@ def fetch_resource(cfg: dict) -> pd.DataFrame:
     return pd.DataFrame(registros)
 
 
-def extract_all() -> Iterator[tuple[str, pd.DataFrame]]:
+def extract_all(endpoints: dict) -> Iterator[tuple[str, pd.DataFrame]]:
 
-    for name, cfg in ENDPOINTS.items():
-        yield name, fetch_resource(cfg)
+    data_hoje = date.today().isoformat()
+
+    for name, cfg in endpoints.items():
+        df = fetch_resource(cfg)
+
+        df["data_extracao"] = data_hoje
+
+        yield name, df
