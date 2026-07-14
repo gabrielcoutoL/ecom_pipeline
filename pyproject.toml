@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "awswrangler>=3.17.0",
+    "ipykernel>=7.3.0",
     "logging>=0.4.9.6",
     "pandas>=3.0.3",
     "pandera[pandas]>=0.32.1",

@@ -26,9 +26,11 @@ def run_bronze():
             bucket_path=f"{PATH_BRONZE}/{name}/",
             partition_cols=["data_extracao"],
             mode="overwrite_partitions",
+            database="db_ecom_lake",
+            table_name=name,
         )
 
-        logging.info(f"Arquivo: {name} salvo com sucesso: {len(df)} registros salvos")
+        logging.info("Tabela %s salva: %d registros", name, len(df))
 
 
 if __name__ == "__main__":

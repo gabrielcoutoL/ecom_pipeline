@@ -104,59 +104,10 @@ resource "aws_iam_role_policy" "lambda_s3" {
 }
 
 # ------------------------------------------------------------------
-# IAM — ROLE DO CRAWLER
-# ------------------------------------------------------------------
-
-resource "aws_iam_role" "glue_crawler_role" {
-  name = "role-glue-crawler-ecom-gclauar"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = { Service = "glue.amazonaws.com" }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "glue_service_access" {
-  role       = aws_iam_role.glue_crawler_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-}
-
-resource "aws_iam_role_policy" "glue_s3" {
-  name = "glue-bronze-read"
-  role = aws_iam_role.glue_crawler_role.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = ["s3:GetObject", "s3:ListBucket"]
-      Resource = [
-        aws_s3_bucket.ecom_bronze.arn,
-        "${aws_s3_bucket.ecom_bronze.arn}/*"
-      ]
-    }]
-  })
-}
-
-# ------------------------------------------------------------------
-# GLUE CATALOG e CRAWLER
+# GLUE CATALOG
 # ------------------------------------------------------------------
 
 resource "aws_glue_catalog_database" "ecom_db" {
   name        = "db_ecom_lake"
   description = "Database para as tabelas do Data Lake de Ecommerce"
-}
-
-resource "aws_glue_crawler" "crawler_bronze" {
-  database_name = aws_glue_catalog_database.ecom_db.name
-  name          = "crawler-ecom-bronze"
-  role          = aws_iam_role.glue_crawler_role.arn
-
-  s3_target {
-    path = "s3://${aws_s3_bucket.ecom_bronze.bucket}/"
-  }
-
-  tags = { Ambiente = "Ecom-pipeline" }
 }
