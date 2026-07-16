@@ -15,6 +15,7 @@ ENDPOINTS: dict[str, dict] = {
     "order_items": {"path": "order_items", "page_size": 2000},
     "payments": {"path": "payments", "page_size": 2000},
 }
+
 PATH_BRONZE = "s3://lake-ecom-bronze-gclauar"
 
 
