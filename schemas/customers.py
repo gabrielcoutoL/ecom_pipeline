@@ -3,6 +3,10 @@ import pandera.pandas as pa
 from pandera.typing import DateTime, Series
 
 
+def agora_utc() -> pd.Timestamp:
+    return pd.Timestamp.now("UTC").tz_localize(None)
+
+
 class SilverCustomers(pa.DataFrameModel):
     customer_id: Series[str] = pa.Field(nullable=False, unique=True)
 
@@ -16,11 +20,11 @@ class SilverCustomers(pa.DataFrameModel):
 
     created_at: Series[DateTime] = pa.Field(nullable=True)
 
-    data_extracao: Series[DateTime] = pa.Field(nullable=False)
+    data_extracao: Series[str] = pa.Field(nullable=False)
 
     @pa.dataframe_check
     def data_nao_futura(cls, df: pd.DataFrame) -> Series[bool]:
-        return df["created_at"].isna() | (df["created_at"] <= pd.Timestamp.now())
+        return df["created_at"].isna() | (df["created_at"] <= agora_utc())
 
     class Config:
         strict = True

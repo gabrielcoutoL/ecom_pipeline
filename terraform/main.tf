@@ -107,7 +107,12 @@ resource "aws_iam_role_policy" "lambda_s3" {
 # GLUE CATALOG
 # ------------------------------------------------------------------
 
-resource "aws_glue_catalog_database" "ecom_db" {
-  name        = "db_ecom_lake"
-  description = "Database para as tabelas do Data Lake de Ecommerce"
+resource "aws_glue_catalog_database" "ecom_db_bronze" {
+  name        = "db_ecom_bronze"
+  description = "Database para as tabelas Bronze do Lake de Ecommerce"
+}
+
+resource "aws_glue_catalog_database" "ecom_db_silver" {
+  name        = "db_ecom_silver"
+  description = "Database para as tabelas Silver do Lake de Ecommerce"
 }

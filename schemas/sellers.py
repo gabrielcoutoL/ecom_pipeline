@@ -1,8 +1,8 @@
 import pandera.pandas as pa
-from pandera.typing import DateTime, Series
+from pandera.typing import Series
 
 
-class SilverProducts(pa.DataFrameModel):
+class SilverSellers(pa.DataFrameModel):
     seller_id: Series[str] = pa.Field(nullable=False, unique=True)
 
     seller_name: Series[str] = pa.Field(nullable=False)
@@ -11,7 +11,7 @@ class SilverProducts(pa.DataFrameModel):
 
     state: Series[str] = pa.Field(nullable=False, str_matches=r"^[A-Z]{2}$")
 
-    data_extracao: Series[DateTime] = pa.Field(nullable=False)
+    data_extracao: Series[str] = pa.Field(nullable=False)
 
     class Config:
         strict = True

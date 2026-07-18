@@ -1,5 +1,5 @@
 import pandera.pandas as pa
-from pandera.typing import DateTime, Int64, Series
+from pandera.typing import Int64, Series
 
 
 class SilverOrderItems(pa.DataFrameModel):
@@ -17,7 +17,7 @@ class SilverOrderItems(pa.DataFrameModel):
 
     quantity: Series[Int64] = pa.Field(nullable=True, gt=0)
 
-    data_extracao: Series[DateTime] = pa.Field(nullable=False)
+    data_extracao: Series[str] = pa.Field(nullable=False)
 
     class Config:
         strict = True

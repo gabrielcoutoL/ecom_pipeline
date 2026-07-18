@@ -1,5 +1,5 @@
 import pandera.pandas as pa
-from pandera.typing import DateTime, Int64, Series
+from pandera.typing import Int64, Series
 
 
 class SilverProducts(pa.DataFrameModel):
@@ -26,7 +26,7 @@ class SilverProducts(pa.DataFrameModel):
 
     weight_g: Series[Int64] = pa.Field(nullable=False, gt=0)
 
-    data_extracao: Series[DateTime] = pa.Field(nullable=False)
+    data_extracao: Series[str] = pa.Field(nullable=False)
 
     class Config:
         strict = True

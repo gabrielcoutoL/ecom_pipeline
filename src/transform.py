@@ -9,9 +9,13 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
+def agora_utc() -> pd.Timestamp:
+    return pd.Timestamp.now("UTC").tz_localize(None)
+
+
 def anula_data_futura(df: pd.DataFrame, col: str) -> pd.DataFrame:
     d = df.copy()
-    fora = d[col] > pd.Timestamp.now()
+    fora = d[col] > agora_utc()
     d.loc[fora, col] = pd.NaT
     logger.info("%s: anulando %d datas futuras.", col, fora.sum())
     return d
@@ -59,7 +63,7 @@ def transform_customers(df_customers: pd.DataFrame) -> pd.DataFrame:
                 "city": str,
                 "state": str,
                 "created_at": "datetime64[ns]",
-                "data_extracao": "datetime64[ns]",
+                "data_extracao": str,
             }
         )
         .assign(
@@ -86,7 +90,7 @@ def transform_order_items(df_order_items: pd.DataFrame) -> pd.DataFrame:
                 "price": float,
                 "freight_value": float,
                 "quantity": "Int64",
-                "data_extracao": "datetime64[ns]",
+                "data_extracao": str,
             }
         )
         .pipe(anula_valores_invalidos, col="price", permite_zero=False)
@@ -118,7 +122,7 @@ def transform_orders(
                 "customer_id": str,
                 "order_status": str,
                 "purchase_ts": "datetime64[ns]",
-                "data_extracao": "datetime64[ns]",
+                "data_extracao": str,
             }
         )
         .assign(order_status=lambda d: d["order_status"].str.strip().str.title())
@@ -128,6 +132,7 @@ def transform_orders(
             )
         )
         .pipe(valida_fk_orfas, df_esquerda=df_customers, col="customer_id")
+        .pipe(anula_data_futura, col="purchase_ts")
         .reset_index(drop=True)
     )
 
@@ -146,7 +151,7 @@ def transform_payments(df_payments: pd.DataFrame) -> pd.DataFrame:
                 "payment_type": str,
                 "installments": "Int64",
                 "payment_value": float,
-                "data_extracao": "datetime64[ns]",
+                "data_extracao": str,
             }
         )
         .assign(payment_type=lambda d: d["payment_type"].str.strip().str.title())
@@ -185,7 +190,7 @@ def transform_products(df_products: pd.DataFrame) -> pd.DataFrame:
                 "product_name": str,
                 "base_price": float,
                 "weight_g": "Int64",
-                "data_extracao": "datetime64[ns]",
+                "data_extracao": str,
             }
         )
         .assign(
@@ -212,7 +217,7 @@ def transform_sellers(df_sellers: pd.DataFrame) -> pd.DataFrame:
                 "seller_name": str,
                 "city": str,
                 "state": str,
-                "data_extracao": "datetime64[ns]",
+                "data_extracao": str,
             }
         )
         .assign(

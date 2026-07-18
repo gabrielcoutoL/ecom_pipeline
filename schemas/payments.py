@@ -1,5 +1,5 @@
 import pandera.pandas as pa
-from pandera.typing import DateTime, Int64, Series
+from pandera.typing import Int64, Series
 
 
 class SilverPayments(pa.DataFrameModel):
@@ -16,7 +16,7 @@ class SilverPayments(pa.DataFrameModel):
 
     payment_value: Series[float] = pa.Field(nullable=True, gt=0)
 
-    data_extracao: Series[DateTime] = pa.Field(nullable=False)
+    data_extracao: Series[str] = pa.Field(nullable=False)
 
     class Config:
         strict = True
