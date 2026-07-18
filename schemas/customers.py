@@ -21,3 +21,7 @@ class SilverCustomers(pa.DataFrameModel):
     @pa.dataframe_check
     def data_nao_futura(cls, df: pd.DataFrame) -> Series[bool]:
         return df["created_at"].isna() | (df["created_at"] <= pd.Timestamp.now())
+
+    class Config:
+        strict = True
+        coerce = False

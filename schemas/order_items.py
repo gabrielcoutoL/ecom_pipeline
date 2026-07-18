@@ -18,3 +18,7 @@ class SilverOrderItems(pa.DataFrameModel):
     quantity: Series[Int64] = pa.Field(nullable=True, gt=0)
 
     data_extracao: Series[DateTime] = pa.Field(nullable=False)
+
+    class Config:
+        strict = True
+        coerce = False

@@ -1,6 +1,6 @@
 import pandas as pd
 import pandera.pandas as pa
-from pandera.typing import Category, DateTime, Series
+from pandera.typing import DateTime, Series
 
 
 class SilverOrders(pa.DataFrameModel):
@@ -8,9 +8,17 @@ class SilverOrders(pa.DataFrameModel):
 
     customer_id: Series[str] = pa.Field(nullable=False)
 
-    order_status: Series[Category] = pa.Field(
+    order_status: Series[str] = pa.Field(
         nullable=False,
-        isin=["Created", "Approved", "Invoiced", "Shipped", "Delivered", "Canceled"],
+        isin=[
+            "Created",
+            "Approved",
+            "Invoiced",
+            "Shipped",
+            "Delivered",
+            "Canceled",
+            "Desconhecido",
+        ],
     )
 
     purchase_ts: Series[DateTime] = pa.Field(nullable=True)
@@ -20,3 +28,7 @@ class SilverOrders(pa.DataFrameModel):
     @pa.dataframe_check
     def data_nao_futura(cls, df: pd.DataFrame) -> Series[bool]:
         return df["purchase_ts"].isna() | (df["purchase_ts"] <= pd.Timestamp.now())
+
+    class Config:
+        strict = True
+        coerce = False

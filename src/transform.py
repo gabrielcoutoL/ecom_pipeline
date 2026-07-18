@@ -99,6 +99,16 @@ def transform_order_items(df_order_items: pd.DataFrame) -> pd.DataFrame:
 def transform_orders(
     df_orders: pd.DataFrame, df_customers: pd.DataFrame
 ) -> pd.DataFrame:
+
+    status_validos = [
+        "Created",
+        "Approved",
+        "Invoiced",
+        "Shipped",
+        "Delivered",
+        "Canceled",
+    ]
+
     return (
         df_orders.dropna(subset="order_id")
         .drop_duplicates(subset="order_id")
@@ -106,18 +116,26 @@ def transform_orders(
             {
                 "order_id": str,
                 "customer_id": str,
-                "order_status": "category",
+                "order_status": str,
                 "purchase_ts": "datetime64[ns]",
                 "data_extracao": "datetime64[ns]",
             }
         )
         .assign(order_status=lambda d: d["order_status"].str.strip().str.title())
+        .assign(
+            order_status=lambda d: d["order_status"].where(
+                d["order_status"].isin(status_validos), "Desconhecido"
+            )
+        )
         .pipe(valida_fk_orfas, df_esquerda=df_customers, col="customer_id")
         .reset_index(drop=True)
     )
 
 
 def transform_payments(df_payments: pd.DataFrame) -> pd.DataFrame:
+
+    types_validos = ["Boleto", "Voucher", "Credit_Card", "Debit_Card"]
+
     return (
         df_payments.dropna(subset="payment_id")
         .drop_duplicates(subset="payment_id")
@@ -125,26 +143,45 @@ def transform_payments(df_payments: pd.DataFrame) -> pd.DataFrame:
             {
                 "payment_id": str,
                 "order_id": str,
-                "payment_type": "category",
+                "payment_type": str,
                 "installments": "Int64",
                 "payment_value": float,
                 "data_extracao": "datetime64[ns]",
             }
         )
-        .replace({"payment_type": {"??": "Desconhecido"}})
+        .assign(payment_type=lambda d: d["payment_type"].str.strip().str.title())
+        .assign(
+            payment_type=lambda d: d["payment_type"].where(
+                d["payment_type"].isin(types_validos), "Desconhecido"
+            )
+        )
         .pipe(anula_valores_invalidos, col="payment_value", permite_zero=False)
+        .pipe(anula_valores_invalidos, col="installments", permite_zero=False)
         .reset_index(drop=True)
     )
 
 
 def transform_products(df_products: pd.DataFrame) -> pd.DataFrame:
+
+    categorias_validas = [
+        "Moveis",
+        "Casa",
+        "Eletronicos",
+        "Beleza",
+        "Moda",
+        "Brinquedos",
+        "Livros",
+        "Esporte",
+        "Desconhecido",
+    ]
+
     return (
         df_products.dropna(subset="product_id")
         .drop_duplicates(subset="product_id")
         .astype(
             {
                 "product_id": str,
-                "category": "category",
+                "category": str,
                 "product_name": str,
                 "base_price": float,
                 "weight_g": "Int64",
@@ -155,7 +192,11 @@ def transform_products(df_products: pd.DataFrame) -> pd.DataFrame:
             category=lambda d: d["category"].str.strip().str.title(),
             product_name=lambda d: d["product_name"].str.strip().str.title(),
         )
-        .fillna({"category": "Desconhecido"})
+        .assign(
+            category=lambda d: d["category"].where(
+                d["category"].isin(categorias_validas), "Desconhecido"
+            )
+        )
         .pipe(anula_valores_invalidos, col="base_price", permite_zero=False)
         .reset_index(drop=True)
     )
