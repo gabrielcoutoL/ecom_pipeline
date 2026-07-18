@@ -32,10 +32,16 @@ resource "aws_s3_bucket" "ecom_silver" {
   tags   = { Ambiente = "Ecom-pipeline", Camada = "Silver" }
 }
 
+resource "aws_s3_bucket" "ecom_gold" {
+  bucket = "lake-ecom-gold-gclauar"
+  tags   = { Ambiente = "Ecom-pipeline", Camada = "Gold" }
+}
+
 locals {
   buckets = {
     bronze = aws_s3_bucket.ecom_bronze.id
     silver = aws_s3_bucket.ecom_silver.id
+    gold   = aws_s3_bucket.ecom_gold.id
   }
 }
 
@@ -115,4 +121,9 @@ resource "aws_glue_catalog_database" "ecom_db_bronze" {
 resource "aws_glue_catalog_database" "ecom_db_silver" {
   name        = "db_ecom_silver"
   description = "Database para as tabelas Silver do Lake de Ecommerce"
+}
+
+resource "aws_glue_catalog_database" "ecom_db_gold" {
+  name        = "db_ecom_gold"
+  description = "Database para as tabelas Gold do Lake de Ecommerce"
 }
