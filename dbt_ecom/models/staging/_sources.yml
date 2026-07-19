@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: silver
+    database: awsdatacatalog
+    schema: db_ecom_silver
+    description: "Camada Silver — dados limpos e validados pelo pipeline Python"
+    tables:
+      - name: customers
+      - name: sellers
+      - name: products
+      - name: orders
+      - name: order_items
+      - name: payments
